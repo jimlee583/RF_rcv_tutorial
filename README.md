@@ -4,7 +4,7 @@ An interactive educational tool for exploring RF receiver architecture
 (gain distribution, noise figure, IIP3/OIP3, SFDR, mixer conversion,
 and two-tone intermodulation).
 
-- **Backend:** Python 3.12, FastAPI, NumPy/SciPy, Pydantic
+- **Backend:** Python 3.12 (managed with uv), FastAPI, NumPy/SciPy, Pydantic
 - **Frontend:** React + TypeScript + Vite + Plotly.js
 - **Tests:** pytest (backend), `tsc --noEmit` + Vite build (frontend)
 
@@ -17,12 +17,11 @@ Full setup instructions for macOS and Windows will be added at the end of
 Phase 4. For now:
 
 ```bash
-# Backend
+# Backend (requires uv: https://docs.astral.sh/uv/)
 cd backend
-python3.12 -m venv .venv
-source .venv/bin/activate       # Windows: .venv\Scripts\activate
-pip install -e .[dev]
-uvicorn app.main:app --reload --port 8000
+uv sync                         # installs Python 3.12 and project deps into .venv
+uv run uvicorn app.main:app --reload --port 8000
+uv run pytest
 
 # Frontend (new terminal)
 cd frontend
