@@ -141,17 +141,20 @@ export interface SpectrumLine {
   category: LineCategory;
   label: string;
   illustrative: boolean;
+  in_trace_span: boolean;
 }
 
 export interface SpectrumTrace {
   frequencies_hz: number[];
   powers_dbm: number[];
   noise_floor_dbm: number;
+  rbw_hz: number;
 }
 
 export interface SpectrumSide {
   lines: SpectrumLine[];
   trace: SpectrumTrace;
+  noise_floor_dbm: number;
 }
 
 export interface SpectrumResponse {
@@ -159,6 +162,12 @@ export interface SpectrumResponse {
   if: SpectrumSide;
   noise_floor_dbm: number;
   warnings: ApiWarning[];
+}
+
+export interface MixerSpurEntry {
+  m: number;
+  n: number;
+  suppression_dbc: number;
 }
 
 export interface SpectrumRequest {
@@ -177,6 +186,10 @@ export interface SpectrumRequest {
   rbw_hz: number | null;
   include_mixer_spurs: boolean;
   mixer_spur_order_max: number;
+  lo_power_dbm: number | null;
+  lo_rf_isolation_db: number | null;
+  lo_if_isolation_db: number | null;
+  spur_table: MixerSpurEntry[] | null;
 }
 
 export interface Ip3CurvePoint {

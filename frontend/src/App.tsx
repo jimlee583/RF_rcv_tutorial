@@ -1,8 +1,10 @@
 import { useState } from 'react';
 
 import { CascadeTab } from './components/CascadeTab';
+import { SpectrumTab } from './components/SpectrumTab';
 import { SummaryStrip } from './components/SummaryStrip';
 import { useReceiverStore } from './state/receiverStore';
+import { useSpectrumStore } from './state/spectrumStore';
 
 type TabId = 'cascade' | 'spectrum' | 'ip3' | 'learn';
 
@@ -15,6 +17,8 @@ const TABS: { id: TabId; label: string }[] = [
 
 export default function App() {
   const store = useReceiverStore();
+  // Lifted above the tabs so the two-tone setup survives tab switches.
+  const spectrum = useSpectrumStore(store.state.config, store.state.result);
   const [tab, setTab] = useState<TabId>('cascade');
 
   return (
@@ -56,11 +60,7 @@ export default function App() {
 
       <main className="main">
         {tab === 'cascade' && <CascadeTab store={store} />}
-        {tab === 'spectrum' && (
-          <div className="panel">
-            Spectrum analyzer will be built in Phase 2.
-          </div>
-        )}
+        {tab === 'spectrum' && <SpectrumTab store={store} spectrum={spectrum} />}
         {tab === 'ip3' && (
           <div className="panel">IP3 / SFDR chart will be built in Phase 3.</div>
         )}

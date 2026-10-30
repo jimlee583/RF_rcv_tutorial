@@ -211,6 +211,20 @@ class ReceiverConfig(BaseModel):
 # ---------------------------------------------------------------------------
 
 
+class MixerSpurEntry(BaseModel):
+    """One row of a measured mixer spur table.
+
+    ``suppression_dbc`` is how far the (m x RF) +/- (n x LO) product sits
+    below the desired (1 x RF) +/- (1 x LO) output, in dB.
+    """
+
+    model_config = ConfigDict(extra="forbid")
+
+    m: int = Field(ge=0, description="RF harmonic order.")
+    n: int = Field(ge=0, description="LO harmonic order.")
+    suppression_dbc: float
+
+
 class SpectrumRequest(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
@@ -228,37 +242,79 @@ class SpectrumRequest(BaseModel):
     temperature_k: float = Field(gt=0, default=290.0)
     rbw_hz: float | None = Field(
         default=None,
-        description="Resolution bandwidth for the simulated analyzer trace (Hz).",
+        gt=0,
+        description=(
+            "Resolution bandwidth for the simulated analyzer trace (Hz).  "
+            "Defaults to the receiver bandwidth so the trace noise floor matches "
+            "the receiver noise floor."
+        ),
     )
     include_mixer_spurs: bool = True
-    mixer_spur_order_max: int = 3
+    mixer_spur_order_max: int = Field(default=3, ge=1, le=7)
+    lo_power_dbm: float | None = Field(
+        default=None,
+        description="LO drive level.  If omitted an illustrative +7 dBm is used.",
+    )
+    lo_rf_isolation_db: float | None = Field(
+        default=None,
+        ge=0,
+        description="LO-to-RF port isolation.  Illustrative default if omitted.",
+    )
+    lo_if_isolation_db: float | None = Field(
+        default=None,
+        ge=0,
+        description="LO-to-IF port isolation.  Illustrative default if omitted.",
+    )
+    spur_table: list[MixerSpurEntry] | None = Field(
+        default=None,
+        description=(
+            "Measured mixer spur table.  When provided, spur levels are taken "
+            "from this table (and reported as non-illustrative) instead of the "
+            "built-in illustrative model.  Products not listed are omitted."
+        ),
+    )
+
+
+LineCategory = Literal[
+    "desired", "im3", "im2", "lo_harmonic", "mixer_spur", "noise_marker"
+]
 
 
 class SpectrumLine(BaseModel):
     frequency_hz: float
     power_dbm: float
-    category: Literal[
-        "desired", "im3", "im2", "lo_harmonic", "mixer_spur", "noise_marker"
-    ]
+    category: LineCategory
     label: str
     illustrative: bool = False
+    in_trace_span: bool = Field(
+        default=True,
+        description="False when the line lies outside the plotted analyzer span.",
+    )
 
 
 class SpectrumTrace(BaseModel):
     frequencies_hz: list[float]
     powers_dbm: list[float]
-    noise_floor_dbm: float
+    noise_floor_dbm: float = Field(
+        description="Noise level shown by the simulated analyzer (kT*RBW + NF, referred to this side)."
+    )
+    rbw_hz: float
 
 
 class SpectrumSide(BaseModel):
     lines: list[SpectrumLine]
     trace: SpectrumTrace
+    noise_floor_dbm: float = Field(
+        description="Receiver noise floor (kTB + NF) referred to this side."
+    )
 
 
 class SpectrumResponse(BaseModel):
     rf: SpectrumSide
     if_: SpectrumSide = Field(alias="if")
-    noise_floor_dbm: float
+    noise_floor_dbm: float = Field(
+        description="Input-referred receiver noise floor, kTB + NF (dBm)."
+    )
     warnings: list[Warning]
 
     model_config = ConfigDict(populate_by_name=True)

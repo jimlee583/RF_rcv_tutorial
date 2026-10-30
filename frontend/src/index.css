@@ -410,3 +410,22 @@ ul.topics button {
 }
 .chip.illustrative { background: #4a3410; color: var(--warn); }
 .chip.limiting { background: #4a1010; color: var(--err); }
+.chip.offspan { background: var(--panel-2); color: var(--fg-dim); }
+
+/* Spectrum tab */
+table.spectrum-lines {
+  margin-top: 8px;
+}
+table.spectrum-lines tr.off-span td {
+  color: var(--fg-dim);
+}
+table.spectrum-lines .swatch {
+  display: inline-block;
+  width: 10px; height: 10px;
+  border-radius: 2px;
+  margin-right: 6px;
+  vertical-align: middle;
+}
+.panel h2 label {
+  font-weight: 400;
+}
