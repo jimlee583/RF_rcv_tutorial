@@ -1,8 +1,11 @@
 import { useState } from 'react';
 
 import { CascadeTab } from './components/CascadeTab';
+import { Ip3Tab } from './components/Ip3Tab';
+import { LearnTab } from './components/LearnTab';
 import { SpectrumTab } from './components/SpectrumTab';
 import { SummaryStrip } from './components/SummaryStrip';
+import { useIp3Store } from './state/ip3Store';
 import { useReceiverStore } from './state/receiverStore';
 import { useSpectrumStore } from './state/spectrumStore';
 
@@ -17,8 +20,9 @@ const TABS: { id: TabId; label: string }[] = [
 
 export default function App() {
   const store = useReceiverStore();
-  // Lifted above the tabs so the two-tone setup survives tab switches.
+  // Lifted above the tabs so the two-tone / IP3 setup survives tab switches.
   const spectrum = useSpectrumStore(store.state.config, store.state.result);
+  const ip3 = useIp3Store(store.state.config, store.state.result);
   const [tab, setTab] = useState<TabId>('cascade');
 
   return (
@@ -61,12 +65,8 @@ export default function App() {
       <main className="main">
         {tab === 'cascade' && <CascadeTab store={store} />}
         {tab === 'spectrum' && <SpectrumTab store={store} spectrum={spectrum} />}
-        {tab === 'ip3' && (
-          <div className="panel">IP3 / SFDR chart will be built in Phase 3.</div>
-        )}
-        {tab === 'learn' && (
-          <div className="panel">Learning articles will be added in Phase 3.</div>
-        )}
+        {tab === 'ip3' && <Ip3Tab store={store} ip3={ip3} />}
+        {tab === 'learn' && <LearnTab />}
       </main>
     </div>
   );

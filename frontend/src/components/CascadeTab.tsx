@@ -1,14 +1,16 @@
+import { explainCascadeChange } from '../explain';
 import type { ReceiverStore } from '../state/receiverStore';
 import { BlockDiagram } from './BlockDiagram';
 import { ComponentTable } from './ComponentTable';
 import { StageTable } from './StageTable';
-import { WarningList } from './WarningList';
 import { Tooltip } from './Tooltip';
+import { WarningList } from './WarningList';
 
 export function CascadeTab({ store }: { store: ReceiverStore }) {
   const { state } = store;
   if (!state.config) return <div>Loading defaults...</div>;
   const cfg = state.config;
+  const change = explainCascadeChange(state.lastAction, state.previousResult, state.result);
   return (
     <div>
       {cfg.illustrative && (
@@ -17,6 +19,8 @@ export function CascadeTab({ store }: { store: ReceiverStore }) {
           the Learn tab for engineering notes.
         </div>
       )}
+
+      {change && <div className="change-strip">{change}</div>}
 
       <div className="panel">
         <h2>Receiver block diagram</h2>
