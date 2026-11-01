@@ -410,6 +410,9 @@ ul.topics button.active {
   gap: 16px;
   align-items: start;
 }
+.learn-layout > * {
+  min-width: 0;
+}
 @media (max-width: 900px) {
   .learn-layout {
     grid-template-columns: 1fr;
@@ -419,10 +422,40 @@ ul.topics button.active {
 .article {
   max-width: 72ch;
 }
+.article.article-wide {
+  max-width: 860px;
+}
+.article.article-wide p,
+.article.article-wide .equation,
+.article.article-wide figcaption {
+  max-width: 72ch;
+}
 .article p,
 .article li {
   color: var(--fg);
   line-height: 1.55;
+}
+.article figure.diagram {
+  margin: 10px 0 14px;
+}
+.article .diagram-scroll {
+  overflow-x: auto;
+  background: var(--panel-2);
+  border: 1px solid var(--panel-border);
+  border-radius: 6px;
+}
+.article figure.diagram svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  min-width: 640px;
+  font-family: inherit;
+}
+.article figcaption {
+  color: var(--fg-dim);
+  font-size: 0.85em;
+  line-height: 1.45;
+  margin-top: 6px;
 }
 .article ul {
   padding-left: 1.2em;
