@@ -214,6 +214,71 @@ const TOPICS: Topic[] = [
     ),
   },
   {
+    id: 'noise-floor',
+    title: 'How the noise floor is calculated',
+    content: (
+      <>
+        <p>
+          Every noise-floor readout in this lab is the same calculation:
+          thermal noise power in a stated bandwidth, converted to dBm, then
+          raised by the noise figure. The code evaluates it from Boltzmann’s
+          constant, k = 1.380649×10⁻²³ J/K.
+        </p>
+        <div className="equation">
+          kTB (W) = k · T · B
+          <br />
+          N (dBm) = 10 log10(kTB × 1000) + NF
+        </div>
+        <p>
+          T is the temperature in the panel, 290 K unless you change it.
+          B is the Bandwidth field, in hertz. Multiplying by 1000 converts
+          watts to milliwatts, which is what puts the logarithm in dBm. NF,
+          in dB, is added after that conversion, so one extra decibel of
+          noise figure lifts the floor by one decibel. On the Cascade tab
+          that NF is the Friis total for the chain. On the IP3 and Spectrum
+          tabs it is the Noise figure field, which tracks the cascade while
+          the tab is linked.
+        </p>
+        <p>
+          At 290 K, kT is −173.98 dBm in a 1 Hz bandwidth. Hand calculation
+          rounds that to −174 dBm/Hz and folds the bandwidth in as
+          10 log10(B):
+        </p>
+        <div className="equation">
+          N (dBm) ≈ −174 + 10 log10(B) + NF &nbsp;&nbsp;(T = 290 K)
+        </div>
+        <p>
+          A 1 MHz bandwidth with NF = 0 dB is −174 + 60 + 0 = −114 dBm. The
+          same bandwidth with NF = 5 dB is −109 dBm. Doubling B adds 3.01 dB;
+          doubling T does the same, and any temperature other than 290 K goes
+          back through the kTB expression above. The IP3 tab’s “Spec example”
+          sets B ≈ 251 kHz and NF = 0 dB so this formula returns −120 dBm.
+        </p>
+        <p>
+          Gain is applied after the sum. The Cascade summary, the RF
+          spectrum, and SFDR use this input-referred N. The output-referred
+          floor — “N (output)” on the IP3 tab, and the IF spectrum — is the
+          same number plus the gain:
+        </p>
+        <div className="equation">N_out (dBm) = N + G</div>
+        <p>
+          The spectrum analyzer trace repeats the formula with the resolution
+          bandwidth in place of B. On the IF side that trace floor is also
+          shifted by G.
+        </p>
+        <div className="equation">
+          trace (dBm) = 10 log10(k · T · RBW · 1000) + NF
+        </div>
+        <p>
+          Leave Analyzer RBW blank and it equals B, so the trace sits on the
+          receiver floor. An RBW of B/100 drops the trace 20 dB. The labeled
+          receiver floor and SFDR keep using the Bandwidth field, so they
+          stay put when only RBW changes.
+        </p>
+      </>
+    ),
+  },
+  {
     id: 'sfdr',
     title: 'Spurious-free dynamic range',
     content: (
