@@ -41,27 +41,148 @@ const TOPICS: Topic[] = [
     content: (
       <>
         <p>
-          Drive an amplifier with two in-band tones at f1 and f2. The cubic
-          term a3 v_in³ expands into components at 2f1 − f2 and 2f2 − f1 —
-          the third-order intermodulation products — sitting 2Δf from the
-          original pair. Those products often fall inside the channel filter,
-          so they cannot be removed after the fact.
+          Start from the weakly nonlinear transfer and drive it with two
+          in-band tones of equal amplitude. Equal amplitude means equal power,
+          because both tones see the same resistance:
         </p>
         <div className="equation">
-          P_IM3 (dBm) = 3 Pin − 2 IIP3 &nbsp;&nbsp;(equal tones, input-referred)
+          v_out = a1 v_in + a2 v_in² + a3 v_in³ + …
+          <br />
+          v_in = A cos(2π f1 t) + A cos(2π f2 t)
+        </div>
+        <p>
+          The linear term copies the two tones to the output at amplitude
+          a1 A. Even-order terms produce a DC offset, second harmonics, and
+          the sum and difference f1 ± f2, which sit far from a narrow channel.
+          The tones that land beside the original pair come from the cubic.
+          Write ω1 = 2π f1 and ω2 = 2π f2, and substitute the two-tone input:
+        </p>
+        <div className="equation">
+          a3 v_in³ = a3 A³ [cos(ω1 t) + cos(ω2 t)]³
+          <br />
+          = a3 A³ [ cos³(ω1 t) + cos³(ω2 t)
+          <br />
+          &nbsp;&nbsp;+ 3 cos²(ω1 t) cos(ω2 t) + 3 cos(ω1 t) cos²(ω2 t) ]
+        </div>
+        <p>
+          Each pure cube, cos³(ω t) = [3 cos(ω t) + cos(3ω t)] / 4, only
+          rebuilds the original tone and adds a third harmonic at 3f1 or 3f2.
+          The new nearby frequencies are in the cross terms. Expand one of
+          them with cos² θ = (1 + cos 2θ) / 2 and
+          cos α cos β = (1/2) [cos(α + β) + cos(α − β)]:
+        </p>
+        <div className="equation">
+          3 cos²(ω1 t) cos(ω2 t)
+          <br />
+          = (3/2) [1 + cos(2ω1 t)] cos(ω2 t)
+          <br />
+          = (3/2) cos(ω2 t) + (3/2) cos(2ω1 t) cos(ω2 t)
+          <br />
+          = (3/2) cos(ω2 t)
+          <br />
+          &nbsp;&nbsp;+ (3/4) [cos((2ω1 + ω2) t) + cos((2ω1 − ω2) t)]
+          <br />
+          = (3/2) cos(ω2 t)
+          <br />
+          &nbsp;&nbsp;+ (3/4) cos((2ω1 + ω2) t)
+          <br />
+          &nbsp;&nbsp;+ (3/4) cos((2ω1 − ω2) t)
+        </div>
+        <p>
+          Multiply back by a3 A³. The last line is a tone at 2f1 − f2 with
+          voltage amplitude (3/4) a3 A³. The other cross term produces the
+          same amplitude at 2f2 − f1. The (3/2) cos(ω2 t) piece, and the
+          on-tone piece of each pure cube, fall back on the original tones.
+          That is gain compression. The IP3 lines use the small-signal
+          fundamental a1 A and leave that compression out. The sum
+          frequencies 2f1 + f2 and 2f2 + f1 fall far above the band.
+        </p>
+        <p>
+          Where the products sit depends on the tone spacing. Let
+          f2 = f1 + Δf:
+        </p>
+        <div className="equation">
+          2f1 − f2 = 2f1 − (f1 + Δf) = f1 − Δf
+          <br />
+          2f2 − f1 = 2(f1 + Δf) − f1 = f1 + 2Δf
+        </div>
+        <p>
+          The lower product is Δf below f1 and 2Δf below f2. The upper product
+          is Δf above f2 and 2Δf above f1. Both often fall inside the channel
+          filter, so they cannot be removed after the fact.
+        </p>
+        <p>
+          Power is proportional to voltage squared. The small-signal
+          fundamental of each tone has amplitude a1 A, and each IM3 product
+          has amplitude (3/4) a3 A³. IIP3 is the input power of each tone at
+          which those two extrapolated amplitudes would match:
+        </p>
+        <div className="equation">
+          |a1| A_IP = (3/4) |a3| A_IP³
+          <br />
+          A_IP² = (4/3) |a1 / a3|
+        </div>
+        <p>
+          At a general drive A the voltage ratio is then
+        </p>
+        <div className="equation">
+          V_IM3 / V_fund = [(3/4) |a3| A³] / (|a1| A) = A² / A_IP²
+        </div>
+        <p>
+          Each tone’s power scales as A², so in linear units
+          Pin / IIP3 = A² / A_IP². Squaring the voltage ratio turns that into
+          the power ratio:
+        </p>
+        <div className="equation">
+          P_IM3,out / P_fund,out = (V_IM3 / V_fund)² = (Pin / IIP3)²
+        </div>
+        <p>
+          Convert the ratio to decibels. 10 log10 of a square is twice
+          10 log10 of the ratio, and the fundamental output is the tone plus
+          the stage gain, P_fund,out = Pin + G:
+        </p>
+        <div className="equation">
+          P_IM3,out = P_fund,out + 2 (Pin − IIP3)
+          <br />
+          = (Pin + G) + 2 Pin − 2 IIP3
+          <br />
+          = 3 Pin + G − 2 IIP3
+        </div>
+        <p>
+          This lab refers the product back to the input by subtracting G.
+          The gain cancels, which leaves the equation used everywhere else
+          in the lab:
+        </p>
+        <div className="equation">
+          P_IM3 (dBm) = P_IM3,out − G = 3 Pin − 2 IIP3
+          <br />
+          &nbsp;&nbsp;(equal tones, input-referred)
         </div>
         <p>
           Example: IIP3 = 0 dBm and two tones at −40 dBm each. Then each IM3
-          product is at −120 dBm. Raise the tones 1 dB and IM3 rises 3 dB; raise
-          IIP3 1 dB and IM3 falls 2 dB. That 3-for-1 / 2-for-1 geometry is the
-          whole IP3 plot.
+          product is 3×(−40) − 2×(0) = −120 dBm. Raise the tones 1 dB, to
+          −39 dBm, and the same formula gives 3×(−39) = −117 dBm, up 3 dB.
+          Raise IIP3 1 dB, to +1 dBm, and it gives 3×(−40) − 2×(1) = −122 dBm,
+          down 2 dB. That 3-for-1 / 2-for-1 geometry is the whole IP3 plot.
         </p>
         <p>
-          Unequal tones are not symmetric. The product at 2f1 − f2 is
-          2P1 + P2 − 2 IIP3; the other is 2P2 + P1 − 2 IIP3. A strong blocker
-          next to a weak desired signal therefore degrades the weaker tone’s
-          neighborhood more than a casual “two equal tones” calculation
-          suggests.
+          Unequal tones use the same cross term with unequal amplitudes,
+          v_in = A1 cos(ω1 t) + A2 cos(ω2 t). The product at 2f1 − f2 then
+          has amplitude (3/4) a3 A1² A2 instead of (3/4) a3 A³. Power follows
+          A1⁴ A2², which is two parts of the first tone and one part of the
+          second:
+        </p>
+        <div className="equation">
+          P(2f1 − f2) = 2 P1 + P2 − 2 IIP3
+          <br />
+          P(2f2 − f1) = 2 P2 + P1 − 2 IIP3
+        </div>
+        <p>
+          Equal tones are the special case P1 = P2 = Pin, and both lines
+          collapse to 3 Pin − 2 IIP3. A strong blocker next to a weak desired
+          signal therefore degrades the weaker tone’s neighborhood more than
+          a casual “two equal tones” calculation suggests: the product beside
+          the weak tone carries the blocker twice.
         </p>
       </>
     ),
