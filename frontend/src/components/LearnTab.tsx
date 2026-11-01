@@ -1,8 +1,12 @@
 import { useState, type ReactNode } from 'react';
 
+import { PassiveDiodeMixerFigures } from './DiodeMixerFigure';
+
 interface Topic {
   id: string;
   title: string;
+  /** Let the diagram use the column while body text stays at the usual measure. */
+  wide?: boolean;
   content: ReactNode;
 }
 
@@ -213,7 +217,143 @@ const TOPICS: Topic[] = [
           cascade. A passive diode mixer is typically −6 to −8 dB; an active
           mixer can have positive conversion gain but usually a worse IIP3.
           The image frequency (the other RF that also converts to the same IF)
-          must be rejected by the RF filter in front of the mixer.
+          must be rejected by the RF filter in front of the mixer. How a
+          diode ring does this multiply, and where that conversion loss comes
+          from, is the next topic.
+        </p>
+      </>
+    ),
+  },
+  {
+    id: 'diode-mixer',
+    title: 'How passive diode mixers work',
+    wide: true,
+    content: (
+      <>
+        <p>
+          A passive diode mixer has no DC supply. The local oscillator is
+          large enough to turn the diodes on and off, and that switching
+          multiplies the RF. The product appears at the sum and at the
+          difference of the two frequencies, and it is smaller than the RF
+          at the input: the stage has conversion loss, where an amplifier
+          would have had gain. The default “Downconverting mixer” in this
+          lab is that part — conversion gain −7 dB, LO at +7 dBm.
+        </p>
+        <p>
+          The multiply comes from the junction law. A Schottky diode follows
+          the Shockley equation. Split the voltage into the large LO and the
+          small RF:
+        </p>
+        <div className="equation">
+          i = Is (exp(v / (n VT)) − 1)
+          <br />
+          v = v_LO + v_RF, &nbsp;&nbsp; |v_RF| {'<<'} |v_LO|
+        </div>
+        <p>
+          VT = kT/q is about 26 mV at room temperature, and n is near 1 for
+          a Schottky junction. The lab’s +7 dBm LO, delivered into 50 Ω, is
+          about 0.71 V peak:
+        </p>
+        <div className="equation">
+          P = 10^((7 − 30) / 10) ≈ 5.0 mW
+          <br />
+          V_peak = sqrt(2 · P · R) ≈ 0.71 V &nbsp;&nbsp; (R = 50 Ω)
+          <br />
+          V_peak / VT ≈ 27
+        </div>
+        <p>
+          The exponent swings through tens of VT over an LO cycle, and the
+          junction current changes by orders of magnitude. That is a switch.
+          The power series in the distortion topic is this same exponential
+          when the swing is only a few VT, which is how an amplifier is
+          usually driven. Around the LO waveform, the piece of current linear
+          in the small RF is a conductance times v_RF:
+        </p>
+        <div className="equation">
+          i_RF(t) ≈ g(t) · v_RF(t)
+          <br />
+          g(t) = di/dv &nbsp; evaluated at v_LO(t)
+        </div>
+        <p>
+          g(t) repeats every LO cycle, so it has a Fourier series: a DC term
+          that passes the RF, a term at f_LO that converts, and higher
+          harmonics that become spurs. The converting term is a product. For
+          one sinusoidal piece of g(t):
+        </p>
+        <div className="equation">
+          cos(ω_RF t) · cos(ω_LO t)
+          <br />
+          = (1/2) [ cos((ω_RF + ω_LO) t) + cos((ω_RF − ω_LO) t) ]
+        </div>
+        <p>
+          Sum and difference come out at the same amplitude. With the lab
+          defaults — an RF tone at 2.09 GHz, LO at 2.00 GHz, lower sideband —
+          the kept tone is 90 MHz and the sum is 4.09 GHz. The spectrum tab
+          draws that other sideband at the same level as the wanted IF. An
+          IF filter keeps one and rejects the other.
+        </p>
+        <p>
+          Driven this hard, each diode is either on or off. Its conductance
+          is one-sided. The ring turns those two states into a multiply by
+          ±1: one LO half-cycle connects the RF to the IF in one polarity,
+          and the next half-cycle crosses the connection, which flips the
+          sign. The effective transfer s(t) is a square wave at f_LO, and a
+          square wave contains only odd harmonics:
+        </p>
+        <div className="equation">
+          s(t) = (4/π) [ sin(ω_LO t) + (1/3) sin(3 ω_LO t) + (1/5) sin(5 ω_LO t) + … ]
+        </div>
+        <p>
+          Keep the fundamental and multiply by an RF tone A cos(ω_RF t).
+          With sin A cos B = (1/2) [sin(A + B) + sin(A − B)]:
+        </p>
+        <div className="equation">
+          (4/π) sin(ω_LO t) · A cos(ω_RF t)
+          <br />
+          = (2A/π) [ sin((ω_LO + ω_RF) t) + sin((ω_LO − ω_RF) t) ]
+        </div>
+        <p>
+          Each sideband has voltage amplitude (2/π) A. Into the same
+          resistance, power follows voltage squared, so the ideal conversion
+          loss of one sideband is
+        </p>
+        <div className="equation">
+          L_c = −20 log10(2/π) = 20 log10(π/2) ≈ 3.9 dB
+        </div>
+        <p>
+          That loss assumes a perfect switch, lossless baluns, and equal
+          RF and IF resistances. Diode series resistance, transformer loss,
+          and a finite switching time add a few decibels. A Schottky ring is
+          typically 6 to 8 dB of conversion loss. The lab enters the default
+          mixer as a conversion gain of −7 dB. For a passive, matched mixer
+          at the standard temperature the noise figure equals that loss,
+          which is why the default NF is 7 dB as well.
+        </p>
+        <PassiveDiodeMixerFigures />
+        <p>
+          The 1/3 and 1/5 coefficients are spurs from a single RF tone. The
+          k-th odd harmonic of s(t) is 1/k in amplitude, or 20 log10(k) dB
+          below the fundamental term — about 9.5 dB for the third harmonic.
+          Even harmonics are absent from the square wave. The two halves of
+          the ring also drive equal and opposite LO current into the IF tap,
+          so the LO cancels there. A single diode multiplies by the same
+          junction law, and both the LO and the RF reach its output pin. The
+          ring is the circuit that suppresses them. The default LO-to-RF
+          isolation of 25 dB is that cancellation, with the balance a real
+          transformer actually achieves. The lab’s illustrative spur model
+          follows the series: odd LO orders fall as 20 log10(n), and even
+          orders take another 35 dB for the balance. A measured spur table
+          replaces those levels.
+        </p>
+        <p>
+          The LO has to be the voltage that decides which diodes are on.
+          When the RF becomes comparable to the LO, g(t) depends on both
+          voltages, the square wave softens, and conversion loss rises. That
+          rise is compression. The default mixer puts input P1dB at +5 dBm,
+          under the +7 dBm LO, and IIP3 at +15 dBm. A higher-level mixer is
+          the same ring with a larger LO, often +13 dBm or +17 dBm, so the
+          diodes stay switched out to a larger RF. Compression and IP3 both
+          move up with that drive.
         </p>
       </>
     ),
@@ -571,7 +711,10 @@ export function LearnTab() {
             ))}
           </ul>
         </div>
-        <div className="panel article">
+        <div
+          className={topic.wide ? 'panel article article-wide' : 'panel article'}
+          id={`learn-${topic.id}`}
+        >
           <h2>{topic.title}</h2>
           {topic.content}
         </div>
