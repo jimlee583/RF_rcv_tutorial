@@ -458,11 +458,47 @@ const TOPICS: Topic[] = [
         </p>
         <div className="equation">N (dBm) = kTB + NF &nbsp;&nbsp;&nbsp; MDS = N + SNR_min</div>
         <p>
-          Noise figure is how much worse than kTB the receiver is. Friis’
-          formula says the first stages dominate: an LNA with NF = 1.2 dB
-          and 18 dB of gain makes a mixer NF of 8 dB contribute only about
-          0.1 dB to the cascade. That is why the lab’s default chain puts
-          the LNA first after a low-loss preselect filter.
+          Noise figure is how much worse than kTB the receiver is. For a
+          chain of stages the total is Friis’ formula. Noise factor F and
+          gain G are linear ratios, F = 10^(NF/10) and G = 10^(G_dB/10).
+          The gain in each denominator is the product of the gains in front
+          of that stage:
+        </p>
+        <div className="equation">
+          F_total = F1 + (F2 − 1)/G1 + (F3 − 1)/(G1·G2) + (F4 − 1)/(G1·G2·G3) + …
+          <br />
+          NF_total (dB) = 10 log10(F_total)
+        </div>
+        <p>
+          The first stage is taken in full. Each later stage is divided by
+          the gain ahead of it, so a noisy stage after a lot of gain barely
+          moves the total. A gain below 1 in front of a stage makes that
+          stage count for more than its own noise figure.
+        </p>
+        <p>
+          The lab default chain is the worked case. A passive filter’s noise
+          figure equals its insertion loss, and its gain is that loss with a
+          minus sign. In order: RF preselect (NF 1 dB, G −1 dB), LNA (NF 1 dB,
+          G 20 dB), mixer (NF 7 dB, G −7 dB), IF filter (NF 2 dB, G −2 dB),
+          IF amplifier (NF 3 dB, G 30 dB).
+        </p>
+        <div className="equation">
+          F = 1.2589 + (1.2589 − 1)/0.7943 + (5.0119 − 1)/79.43
+          <br />
+          &nbsp;&nbsp;&nbsp;+ (1.5849 − 1)/15.85 + (1.9953 − 1)/10
+          <br />
+          F = 1.2589 + 0.3260 + 0.0505 + 0.0369 + 0.0995 = 1.7718
+          <br />
+          NF = 10 log10(1.7718) = 2.48 dB
+        </div>
+        <p>
+          The preselect and the LNA account for 2.00 dB of that 2.48 dB.
+          The mixer’s own NF is 7 dB, and it sits behind 19 dB of gain, so
+          its term is 0.0505 and it adds 0.14 dB to the cascade. The IF
+          amplifier still adds 0.25 dB: the mixer and the IF filter have
+          given 9 dB of that gain back, and the gain in front of the IF
+          amplifier is only 10 dB. At the default 1 MHz bandwidth and 290 K,
+          the input noise floor is −114 dBm + 2.48 dB, about −111.5 dBm.
         </p>
         <p>
           Sensitivity (MDS) is the noise floor plus whatever SNR the
