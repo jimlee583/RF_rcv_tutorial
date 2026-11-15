@@ -1,6 +1,7 @@
 import { useState, type ReactNode } from 'react';
 
 import { PassiveDiodeMixerFigures } from './DiodeMixerFigure';
+import { Equation } from './Equation';
 
 interface Topic {
   id: string;
@@ -22,7 +23,9 @@ const TOPICS: Topic[] = [
           have a transfer curve that bends. For a memoryless weakly nonlinear
           device the output can be written as a power series
         </p>
-        <div className="equation">v_out = a1 v_in + a2 v_in² + a3 v_in³ + …</div>
+        <Equation
+          tex={String.raw`v_{\mathrm{out}} = a_1 v_{\mathrm{in}} + a_2 v_{\mathrm{in}}^{2} + a_3 v_{\mathrm{in}}^{3} + \cdots`}
+        />
         <p>
           The linear term a1 is the small-signal voltage gain. The even-order
           terms (a2, a4, …) generate DC offsets and sum/difference products. The
@@ -49,11 +52,12 @@ const TOPICS: Topic[] = [
           in-band tones of equal amplitude. Equal amplitude means equal power,
           because both tones see the same resistance:
         </p>
-        <div className="equation">
-          v_out = a1 v_in + a2 v_in² + a3 v_in³ + …
-          <br />
-          v_in = A cos(2π f1 t) + A cos(2π f2 t)
-        </div>
+        <Equation
+          tex={String.raw`\begin{aligned}
+            v_{\mathrm{out}} &= a_1 v_{\mathrm{in}} + a_2 v_{\mathrm{in}}^{2} + a_3 v_{\mathrm{in}}^{3} + \cdots \\
+            v_{\mathrm{in}} &= A \cos(2\pi f_1 t) + A \cos(2\pi f_2 t)
+          \end{aligned}`}
+        />
         <p>
           The linear term copies the two tones to the output at amplitude
           a1 A. Even-order terms produce a DC offset, second harmonics, and
@@ -61,13 +65,13 @@ const TOPICS: Topic[] = [
           The tones that land beside the original pair come from the cubic.
           Write ω1 = 2π f1 and ω2 = 2π f2, and substitute the two-tone input:
         </p>
-        <div className="equation">
-          a3 v_in³ = a3 A³ [cos(ω1 t) + cos(ω2 t)]³
-          <br />
-          = a3 A³ [ cos³(ω1 t) + cos³(ω2 t)
-          <br />
-          &nbsp;&nbsp;+ 3 cos²(ω1 t) cos(ω2 t) + 3 cos(ω1 t) cos²(ω2 t) ]
-        </div>
+        <Equation
+          tex={String.raw`\begin{aligned}
+            a_3 v_{\mathrm{in}}^{3} &= a_3 A^{3} \bigl[\cos(\omega_1 t) + \cos(\omega_2 t)\bigr]^{3} \\
+            &= a_3 A^{3} \bigl[\cos^{3}(\omega_1 t) + \cos^{3}(\omega_2 t) \\
+            &\qquad + 3\cos^{2}(\omega_1 t)\cos(\omega_2 t) + 3\cos(\omega_1 t)\cos^{2}(\omega_2 t)\bigr]
+          \end{aligned}`}
+        />
         <p>
           Each pure cube, cos³(ω t) = [3 cos(ω t) + cos(3ω t)] / 4, only
           rebuilds the original tone and adds a third harmonic at 3f1 or 3f2.
@@ -75,23 +79,18 @@ const TOPICS: Topic[] = [
           them with cos² θ = (1 + cos 2θ) / 2 and
           cos α cos β = (1/2) [cos(α + β) + cos(α − β)]:
         </p>
-        <div className="equation">
-          3 cos²(ω1 t) cos(ω2 t)
-          <br />
-          = (3/2) [1 + cos(2ω1 t)] cos(ω2 t)
-          <br />
-          = (3/2) cos(ω2 t) + (3/2) cos(2ω1 t) cos(ω2 t)
-          <br />
-          = (3/2) cos(ω2 t)
-          <br />
-          &nbsp;&nbsp;+ (3/4) [cos((2ω1 + ω2) t) + cos((2ω1 − ω2) t)]
-          <br />
-          = (3/2) cos(ω2 t)
-          <br />
-          &nbsp;&nbsp;+ (3/4) cos((2ω1 + ω2) t)
-          <br />
-          &nbsp;&nbsp;+ (3/4) cos((2ω1 − ω2) t)
-        </div>
+        <Equation
+          tex={String.raw`\begin{aligned}
+            3\cos^{2}(\omega_1 t)\cos(\omega_2 t)
+            &= \tfrac{3}{2}\bigl[1 + \cos(2\omega_1 t)\bigr]\cos(\omega_2 t) \\
+            &= \tfrac{3}{2}\cos(\omega_2 t) + \tfrac{3}{2}\cos(2\omega_1 t)\cos(\omega_2 t) \\
+            &= \tfrac{3}{2}\cos(\omega_2 t) \\
+            &\qquad + \tfrac{3}{4}\bigl[\cos((2\omega_1 + \omega_2)t) + \cos((2\omega_1 - \omega_2)t)\bigr] \\
+            &= \tfrac{3}{2}\cos(\omega_2 t) \\
+            &\qquad + \tfrac{3}{4}\cos((2\omega_1 + \omega_2)t) \\
+            &\qquad + \tfrac{3}{4}\cos((2\omega_1 - \omega_2)t)
+          \end{aligned}`}
+        />
         <p>
           Multiply back by a3 A³. The last line is a tone at 2f1 − f2 with
           voltage amplitude (3/4) a3 A³. The other cross term produces the
@@ -105,11 +104,12 @@ const TOPICS: Topic[] = [
           Where the products sit depends on the tone spacing. Let
           f2 = f1 + Δf:
         </p>
-        <div className="equation">
-          2f1 − f2 = 2f1 − (f1 + Δf) = f1 − Δf
-          <br />
-          2f2 − f1 = 2(f1 + Δf) − f1 = f1 + 2Δf
-        </div>
+        <Equation
+          tex={String.raw`\begin{aligned}
+            2f_1 - f_2 &= 2f_1 - (f_1 + \Delta f) = f_1 - \Delta f \\
+            2f_2 - f_1 &= 2(f_1 + \Delta f) - f_1 = f_1 + 2\Delta f
+          \end{aligned}`}
+        />
         <p>
           The lower product is Δf below f1 and 2Δf below f2. The upper product
           is Δf above f2 and 2Δf above f1. Both often fall inside the channel
@@ -121,47 +121,49 @@ const TOPICS: Topic[] = [
           has amplitude (3/4) a3 A³. IIP3 is the input power of each tone at
           which those two extrapolated amplitudes would match:
         </p>
-        <div className="equation">
-          |a1| A_IP = (3/4) |a3| A_IP³
-          <br />
-          A_IP² = (4/3) |a1 / a3|
-        </div>
+        <Equation
+          tex={String.raw`\begin{aligned}
+            |a_1| \, A_{\mathrm{IP}} &= \tfrac{3}{4} \, |a_3| \, A_{\mathrm{IP}}^{3} \\
+            A_{\mathrm{IP}}^{2} &= \tfrac{4}{3} \left|\frac{a_1}{a_3}\right|
+          \end{aligned}`}
+        />
         <p>
           At a general drive A the voltage ratio is then
         </p>
-        <div className="equation">
-          V_IM3 / V_fund = [(3/4) |a3| A³] / (|a1| A) = A² / A_IP²
-        </div>
+        <Equation
+          tex={String.raw`\frac{V_{\mathrm{IM3}}}{V_{\mathrm{fund}}} = \frac{\tfrac{3}{4}\,|a_3|\,A^{3}}{|a_1|\,A} = \frac{A^{2}}{A_{\mathrm{IP}}^{2}}`}
+        />
         <p>
           Each tone’s power scales as A², so in linear units
           Pin / IIP3 = A² / A_IP². Squaring the voltage ratio turns that into
           the power ratio:
         </p>
-        <div className="equation">
-          P_IM3,out / P_fund,out = (V_IM3 / V_fund)² = (Pin / IIP3)²
-        </div>
+        <Equation
+          tex={String.raw`\frac{P_{\mathrm{IM3,out}}}{P_{\mathrm{fund,out}}} = \left(\frac{V_{\mathrm{IM3}}}{V_{\mathrm{fund}}}\right)^{2} = \left(\frac{P_{\mathrm{in}}}{\mathrm{IIP3}}\right)^{2}`}
+        />
         <p>
           Convert the ratio to decibels. 10 log10 of a square is twice
           10 log10 of the ratio, and the fundamental output is the tone plus
           the stage gain, P_fund,out = Pin + G:
         </p>
-        <div className="equation">
-          P_IM3,out = P_fund,out + 2 (Pin − IIP3)
-          <br />
-          = (Pin + G) + 2 Pin − 2 IIP3
-          <br />
-          = 3 Pin + G − 2 IIP3
-        </div>
+        <Equation
+          tex={String.raw`\begin{aligned}
+            P_{\mathrm{IM3,out}} &= P_{\mathrm{fund,out}} + 2\,(P_{\mathrm{in}} - \mathrm{IIP3}) \\
+            &= (P_{\mathrm{in}} + G) + 2\,P_{\mathrm{in}} - 2\,\mathrm{IIP3} \\
+            &= 3\,P_{\mathrm{in}} + G - 2\,\mathrm{IIP3}
+          \end{aligned}`}
+        />
         <p>
           This lab refers the product back to the input by subtracting G.
           The gain cancels, which leaves the equation used everywhere else
           in the lab:
         </p>
-        <div className="equation">
-          P_IM3 (dBm) = P_IM3,out − G = 3 Pin − 2 IIP3
-          <br />
-          &nbsp;&nbsp;(equal tones, input-referred)
-        </div>
+        <Equation
+          tex={String.raw`\begin{aligned}
+            P_{\mathrm{IM3}}\ (\mathrm{dBm}) &= P_{\mathrm{IM3,out}} - G = 3\,P_{\mathrm{in}} - 2\,\mathrm{IIP3} \\
+            &\text{(equal tones, input-referred)}
+          \end{aligned}`}
+        />
         <p>
           Example: IIP3 = 0 dBm and two tones at −40 dBm each. Then each IM3
           product is 3×(−40) − 2×(0) = −120 dBm. Raise the tones 1 dB, to
@@ -176,11 +178,12 @@ const TOPICS: Topic[] = [
           A1⁴ A2², which is two parts of the first tone and one part of the
           second:
         </p>
-        <div className="equation">
-          P(2f1 − f2) = 2 P1 + P2 − 2 IIP3
-          <br />
-          P(2f2 − f1) = 2 P2 + P1 − 2 IIP3
-        </div>
+        <Equation
+          tex={String.raw`\begin{aligned}
+            P(2f_1 - f_2) &= 2\,P_1 + P_2 - 2\,\mathrm{IIP3} \\
+            P(2f_2 - f_1) &= 2\,P_2 + P_1 - 2\,\mathrm{IIP3}
+          \end{aligned}`}
+        />
         <p>
           Equal tones are the special case P1 = P2 = Pin, and both lines
           collapse to 3 Pin − 2 IIP3. A strong blocker next to a weak desired
@@ -202,9 +205,9 @@ const TOPICS: Topic[] = [
           |f_RF ± f_LO|. A downconverting receiver keeps the difference
           (lower sideband); an upconverter keeps the sum (upper sideband).
         </p>
-        <div className="equation">
-          f_IF = |f_RF − f_LO| &nbsp;(lower) &nbsp; or &nbsp; f_RF + f_LO &nbsp;(upper)
-        </div>
+        <Equation
+          tex={String.raw`f_{\mathrm{IF}} = |f_{\mathrm{RF}} - f_{\mathrm{LO}}|\ \text{(lower)} \quad\text{or}\quad f_{\mathrm{RF}} + f_{\mathrm{LO}}\ \text{(upper)}`}
+        />
         <p>
           The default lab case is two RF tones at 2.09 GHz and 2.11 GHz with
           an LO at 2.00 GHz, lower sideband. The wanted IF tones land at
@@ -244,23 +247,24 @@ const TOPICS: Topic[] = [
           the Shockley equation. Split the voltage into the large LO and the
           small RF:
         </p>
-        <div className="equation">
-          i = Is (exp(v / (n VT)) − 1)
-          <br />
-          v = v_LO + v_RF, &nbsp;&nbsp; |v_RF| {'<<'} |v_LO|
-        </div>
+        <Equation
+          tex={String.raw`\begin{aligned}
+            i &= I_s \bigl(\exp(v / (n V_T)) - 1\bigr) \\
+            v &= v_{\mathrm{LO}} + v_{\mathrm{RF}}, \quad |v_{\mathrm{RF}}| \ll |v_{\mathrm{LO}}|
+          \end{aligned}`}
+        />
         <p>
           VT = kT/q is about 26 mV at room temperature, and n is near 1 for
           a Schottky junction. The lab’s +7 dBm LO, delivered into 50 Ω, is
           about 0.71 V peak:
         </p>
-        <div className="equation">
-          P = 10^((7 − 30) / 10) ≈ 5.0 mW
-          <br />
-          V_peak = sqrt(2 · P · R) ≈ 0.71 V &nbsp;&nbsp; (R = 50 Ω)
-          <br />
-          V_peak / VT ≈ 27
-        </div>
+        <Equation
+          tex={String.raw`\begin{aligned}
+            P &= 10^{((7 - 30)/10)} \approx 5.0\,\mathrm{mW} \\
+            V_{\mathrm{peak}} &= \sqrt{2 \cdot P \cdot R} \approx 0.71\,\mathrm{V} \quad (R = 50\,\Omega) \\
+            V_{\mathrm{peak}} / V_T &\approx 27
+          \end{aligned}`}
+        />
         <p>
           The exponent swings through tens of VT over an LO cycle, and the
           junction current changes by orders of magnitude. That is a switch.
@@ -269,22 +273,24 @@ const TOPICS: Topic[] = [
           usually driven. Around the LO waveform, the piece of current linear
           in the small RF is a conductance times v_RF:
         </p>
-        <div className="equation">
-          i_RF(t) ≈ g(t) · v_RF(t)
-          <br />
-          g(t) = di/dv &nbsp; evaluated at v_LO(t)
-        </div>
+        <Equation
+          tex={String.raw`\begin{aligned}
+            i_{\mathrm{RF}}(t) &\approx g(t) \cdot v_{\mathrm{RF}}(t) \\
+            g(t) &= \mathrm{d}i/\mathrm{d}v \ \text{evaluated at}\ v_{\mathrm{LO}}(t)
+          \end{aligned}`}
+        />
         <p>
           g(t) repeats every LO cycle, so it has a Fourier series: a DC term
           that passes the RF, a term at f_LO that converts, and higher
           harmonics that become spurs. The converting term is a product. For
           one sinusoidal piece of g(t):
         </p>
-        <div className="equation">
-          cos(ω_RF t) · cos(ω_LO t)
-          <br />
-          = (1/2) [ cos((ω_RF + ω_LO) t) + cos((ω_RF − ω_LO) t) ]
-        </div>
+        <Equation
+          tex={String.raw`\begin{aligned}
+            \cos(\omega_{\mathrm{RF}} t) \cdot \cos(\omega_{\mathrm{LO}} t)
+            &= \tfrac{1}{2} \bigl[\cos((\omega_{\mathrm{RF}} + \omega_{\mathrm{LO}})t) + \cos((\omega_{\mathrm{RF}} - \omega_{\mathrm{LO}})t)\bigr]
+          \end{aligned}`}
+        />
         <p>
           Sum and difference come out at the same amplitude. With the lab
           defaults — an RF tone at 2.09 GHz, LO at 2.00 GHz, lower sideband —
@@ -300,26 +306,27 @@ const TOPICS: Topic[] = [
           sign. The effective transfer s(t) is a square wave at f_LO, and a
           square wave contains only odd harmonics:
         </p>
-        <div className="equation">
-          s(t) = (4/π) [ sin(ω_LO t) + (1/3) sin(3 ω_LO t) + (1/5) sin(5 ω_LO t) + … ]
-        </div>
+        <Equation
+          tex={String.raw`s(t) = \frac{4}{\pi}\bigl[\sin(\omega_{\mathrm{LO}} t) + \tfrac{1}{3}\sin(3\omega_{\mathrm{LO}} t) + \tfrac{1}{5}\sin(5\omega_{\mathrm{LO}} t) + \cdots\bigr]`}
+        />
         <p>
           Keep the fundamental and multiply by an RF tone A cos(ω_RF t).
           With sin A cos B = (1/2) [sin(A + B) + sin(A − B)]:
         </p>
-        <div className="equation">
-          (4/π) sin(ω_LO t) · A cos(ω_RF t)
-          <br />
-          = (2A/π) [ sin((ω_LO + ω_RF) t) + sin((ω_LO − ω_RF) t) ]
-        </div>
+        <Equation
+          tex={String.raw`\begin{aligned}
+            \frac{4}{\pi}\sin(\omega_{\mathrm{LO}} t) \cdot A\cos(\omega_{\mathrm{RF}} t)
+            &= \frac{2A}{\pi}\bigl[\sin((\omega_{\mathrm{LO}} + \omega_{\mathrm{RF}})t) + \sin((\omega_{\mathrm{LO}} - \omega_{\mathrm{RF}})t)\bigr]
+          \end{aligned}`}
+        />
         <p>
           Each sideband has voltage amplitude (2/π) A. Into the same
           resistance, power follows voltage squared, so the ideal conversion
           loss of one sideband is
         </p>
-        <div className="equation">
-          L_c = −20 log10(2/π) = 20 log10(π/2) ≈ 3.9 dB
-        </div>
+        <Equation
+          tex={String.raw`L_c = -20\log_{10}(2/\pi) = 20\log_{10}(\pi/2) \approx 3.9\,\mathrm{dB}`}
+        />
         <p>
           That loss assumes a perfect switch, lossless baluns, and equal
           RF and IF resistances. Diode series resistance, transformer loss,
@@ -369,7 +376,9 @@ const TOPICS: Topic[] = [
           different mechanism: the mixer also multiplies harmonics of the RF
           by harmonics of the LO,
         </p>
-        <div className="equation">f_spur = |m · f_RF ± n · f_LO|</div>
+        <Equation
+          tex={String.raw`f_{\mathrm{spur}} = |m \cdot f_{\mathrm{RF}} \pm n \cdot f_{\mathrm{LO}}|`}
+        />
         <p>
           Those (m × n) products exist even with a single RF tone. A classic
           example is the 2 × 2 spur of a diode mixer, |2 f_RF − 2 f_LO|,
@@ -400,9 +409,9 @@ const TOPICS: Topic[] = [
           blocker at that frequency mixes with itself (or with the LO’s
           second harmonic) into the IF.
         </p>
-        <div className="equation">
-          P_IM2 = P1 + P2 − IIP2 &nbsp;&nbsp;&nbsp; P_IM3 = 2P1 + P2 − 2 IIP3
-        </div>
+        <Equation
+          tex={String.raw`P_{\mathrm{IM2}} = P_1 + P_2 - \mathrm{IIP2} \qquad P_{\mathrm{IM3}} = 2P_1 + P_2 - 2\,\mathrm{IIP3}`}
+        />
         <p>
           IM2 therefore rises 2 dB per dB of input (slope 2 on a Pout-vs-Pin
           plot) and IM3 rises 3 dB per dB. Differential / balanced circuits
@@ -427,7 +436,9 @@ const TOPICS: Topic[] = [
           extrapolated fundamental and IM3 curves meet. It is not a power
           the device can deliver.
         </p>
-        <div className="equation">OIP3 = IIP3 + G &nbsp;&nbsp;(dBm, G in dB)</div>
+        <Equation
+          tex={String.raw`\mathrm{OIP3} = \mathrm{IIP3} + G \quad (\mathrm{dBm},\ G\ \text{in dB})`}
+        />
         <p>
           Quote IIP3 when you care about what the preceding stage may send
           you (blockers at the antenna, mixer input). Quote OIP3 when you
@@ -461,13 +472,13 @@ const TOPICS: Topic[] = [
           still sits in G_prev of every stage after it. When a part quotes
           OIP3 and leaves IIP3 blank, the stage intercept is OIP3 − G.
         </p>
-        <div className="equation">
-          1 / IIP3_mW = Σ (G_prev,i / IIP3_i,mW)
-          <br />
-          IIP3 (dBm) = 10 log10(IIP3_mW)
-          <br />
-          G_prev,1 = 1 &nbsp;&nbsp; G_prev,i = G1 · G2 · … · G_(i−1)
-        </div>
+        <Equation
+          tex={String.raw`\begin{aligned}
+            \frac{1}{\mathrm{IIP3}_{\mathrm{mW}}} &= \sum_i \frac{G_{\mathrm{prev},i}}{\mathrm{IIP3}_{i,\mathrm{mW}}} \\
+            \mathrm{IIP3}\ (\mathrm{dBm}) &= 10\log_{10}(\mathrm{IIP3}_{\mathrm{mW}}) \\
+            G_{\mathrm{prev},1} &= 1, \quad G_{\mathrm{prev},i} = G_1 \cdot G_2 \cdots G_{i-1}
+          \end{aligned}`}
+        />
         <p>
           The lab default chain is the worked case. The two filters have no
           IIP3. The LNA quotes OIP3 = 30 dBm at 20 dB of gain, so its IIP3
@@ -476,19 +487,18 @@ const TOPICS: Topic[] = [
           5 dBm (3.162 mW). Linear gains along the chain are 0.7943, 100,
           0.1995, 0.6310, and 1000.
         </p>
-        <div className="equation">
-          LNA: G_prev = 0.7943 &nbsp;&nbsp; term = 0.7943 / 10 = 0.0794
-          <br />
-          Mixer: G_prev = 0.7943 × 100 = 79.43 &nbsp;&nbsp; term = 79.43 / 31.62 = 2.512
-          <br />
-          IF amp: G_prev = 79.43 × 0.1995 × 0.6310 = 10.00
-          <br />
-          &nbsp;&nbsp;&nbsp;term = 10.00 / 3.162 = 3.162
-          <br />
-          1 / IIP3_mW = 0.0794 + 2.512 + 3.162 = 5.753
-          <br />
-          IIP3 = 10 log10(1 / 5.753) = −7.60 dBm
-        </div>
+        <Equation
+          tex={String.raw`\begin{aligned}
+            \text{LNA:} \quad & G_{\mathrm{prev}} = 0.7943 \\
+            & \text{term} = 0.7943 / 10 = 0.0794 \\
+            \text{Mixer:} \quad & G_{\mathrm{prev}} = 0.7943 \times 100 = 79.43 \\
+            & \text{term} = 79.43 / 31.62 = 2.512 \\
+            \text{IF amp:} \quad & G_{\mathrm{prev}} = 79.43 \times 0.1995 \times 0.6310 = 10.00 \\
+            & \text{term} = 10.00 / 3.162 = 3.162 \\
+            & 1 / \mathrm{IIP3}_{\mathrm{mW}} = 0.0794 + 2.512 + 3.162 = 5.753 \\
+            & \mathrm{IIP3} = 10\log_{10}(1 / 5.753) = -7.60\,\mathrm{dBm}
+          \end{aligned}`}
+        />
         <p>
           The ΣIIP3 column is this same sum stopped at the current stage.
           After the LNA the only term is 0.0794, so ΣIIP3 is +11.0 dBm: the
@@ -501,7 +511,9 @@ const TOPICS: Topic[] = [
           Total gain is −1 + 20 − 7 − 2 + 30 = 40 dB, so the output intercept
           of the chain is
         </p>
-        <div className="equation">OIP3 = IIP3 + G = −7.60 + 40 = 32.40 dBm</div>
+        <Equation
+          tex={String.raw`\mathrm{OIP3} = \mathrm{IIP3} + G = -7.60 + 40 = 32.40\,\mathrm{dBm}`}
+        />
         <p>
           Gain in front of a stage multiplies that stage’s term and lowers
           the cascade IIP3. The IF amplifier’s own intercept is 5 dBm, and
@@ -524,7 +536,9 @@ const TOPICS: Topic[] = [
           to −174 dBm/Hz. A 1 MHz channel is then −114 dBm before any
           receiver noise is added.
         </p>
-        <div className="equation">N (dBm) = kTB + NF &nbsp;&nbsp;&nbsp; MDS = N + SNR_min</div>
+        <Equation
+          tex={String.raw`N\ (\mathrm{dBm}) = kTB + \mathrm{NF} \qquad \mathrm{MDS} = N + \mathrm{SNR}_{\min}`}
+        />
         <p>
           Noise figure is how much worse than kTB the receiver is. For a
           chain of stages the total is Friis’ formula. Noise factor F and
@@ -532,11 +546,12 @@ const TOPICS: Topic[] = [
           The gain in each denominator is the product of the gains in front
           of that stage:
         </p>
-        <div className="equation">
-          F_total = F1 + (F2 − 1)/G1 + (F3 − 1)/(G1·G2) + (F4 − 1)/(G1·G2·G3) + …
-          <br />
-          NF_total (dB) = 10 log10(F_total)
-        </div>
+        <Equation
+          tex={String.raw`\begin{aligned}
+            F_{\mathrm{total}} &= F_1 + \frac{F_2 - 1}{G_1} + \frac{F_3 - 1}{G_1 G_2} + \frac{F_4 - 1}{G_1 G_2 G_3} + \cdots \\
+            \mathrm{NF}_{\mathrm{total}}\ (\mathrm{dB}) &= 10\log_{10}(F_{\mathrm{total}})
+          \end{aligned}`}
+        />
         <p>
           The first stage is taken in full. Each later stage is divided by
           the gain ahead of it, so a noisy stage after a lot of gain barely
@@ -550,15 +565,14 @@ const TOPICS: Topic[] = [
           G 20 dB), mixer (NF 7 dB, G −7 dB), IF filter (NF 2 dB, G −2 dB),
           IF amplifier (NF 3 dB, G 30 dB).
         </p>
-        <div className="equation">
-          F = 1.2589 + (1.2589 − 1)/0.7943 + (5.0119 − 1)/79.43
-          <br />
-          &nbsp;&nbsp;&nbsp;+ (1.5849 − 1)/15.85 + (1.9953 − 1)/10
-          <br />
-          F = 1.2589 + 0.3260 + 0.0505 + 0.0369 + 0.0995 = 1.7718
-          <br />
-          NF = 10 log10(1.7718) = 2.48 dB
-        </div>
+        <Equation
+          tex={String.raw`\begin{aligned}
+            F &= 1.2589 + \frac{1.2589 - 1}{0.7943} + \frac{5.0119 - 1}{79.43} \\
+            &\quad + \frac{1.5849 - 1}{15.85} + \frac{1.9953 - 1}{10} \\
+            F &= 1.2589 + 0.3260 + 0.0505 + 0.0369 + 0.0995 = 1.7718 \\
+            \mathrm{NF} &= 10\log_{10}(1.7718) = 2.48\,\mathrm{dB}
+          \end{aligned}`}
+        />
         <p>
           The preselect and the LNA account for 2.00 dB of that 2.48 dB.
           The mixer’s own NF is 7 dB, and it sits behind 19 dB of gain, so
@@ -589,11 +603,12 @@ const TOPICS: Topic[] = [
           raised by the noise figure. The code evaluates it from Boltzmann’s
           constant, k = 1.380649×10⁻²³ J/K.
         </p>
-        <div className="equation">
-          kTB (W) = k · T · B
-          <br />
-          N (dBm) = 10 log10(kTB × 1000) + NF
-        </div>
+        <Equation
+          tex={String.raw`\begin{aligned}
+            kTB\ (\mathrm{W}) &= k \cdot T \cdot B \\
+            N\ (\mathrm{dBm}) &= 10\log_{10}(kTB \times 1000) + \mathrm{NF}
+          \end{aligned}`}
+        />
         <p>
           T is the temperature in the panel, 290 K unless you change it.
           B is the Bandwidth field, in hertz. Multiplying by 1000 converts
@@ -609,9 +624,9 @@ const TOPICS: Topic[] = [
           rounds that to −174 dBm/Hz and folds the bandwidth in as
           10 log10(B):
         </p>
-        <div className="equation">
-          N (dBm) ≈ −174 + 10 log10(B) + NF &nbsp;&nbsp;(T = 290 K)
-        </div>
+        <Equation
+          tex={String.raw`N\ (\mathrm{dBm}) \approx -174 + 10\log_{10}(B) + \mathrm{NF} \quad (T = 290\,\mathrm{K})`}
+        />
         <p>
           A 1 MHz bandwidth with NF = 0 dB is −174 + 60 + 0 = −114 dBm. The
           same bandwidth with NF = 5 dB is −109 dBm. Doubling B adds 3.01 dB;
@@ -625,15 +640,15 @@ const TOPICS: Topic[] = [
           floor — “N (output)” on the IP3 tab, and the IF spectrum — is the
           same number plus the gain:
         </p>
-        <div className="equation">N_out (dBm) = N + G</div>
+        <Equation tex={String.raw`N_{\mathrm{out}}\ (\mathrm{dBm}) = N + G`} />
         <p>
           The spectrum analyzer trace repeats the formula with the resolution
           bandwidth in place of B. On the IF side that trace floor is also
           shifted by G.
         </p>
-        <div className="equation">
-          trace (dBm) = 10 log10(k · T · RBW · 1000) + NF
-        </div>
+        <Equation
+          tex={String.raw`\mathrm{trace}\ (\mathrm{dBm}) = 10\log_{10}(k \cdot T \cdot \mathrm{RBW} \cdot 1000) + \mathrm{NF}`}
+        />
         <p>
           Leave Analyzer RBW blank and it equals B, so the trace sits on the
           receiver floor. An RBW of B/100 drops the trace 20 dB. The labeled
@@ -654,7 +669,9 @@ const TOPICS: Topic[] = [
           below it. Geometrically it is the vertical green span on the IP3
           plot, or the horizontal span from N to the Pin where IM3 crosses N.
         </p>
-        <div className="equation">SFDR3 = (2/3) (IIP3 − N)</div>
+        <Equation
+          tex={String.raw`\mathrm{SFDR}_3 = \tfrac{2}{3}\,(\mathrm{IIP3} - N)`}
+        />
         <p>
           The spec’s check case: IIP3 = 0 dBm, N = −120 dBm → SFDR = 80 dB.
           Two equal tones at −40 dBm sit exactly at that upper edge — each
@@ -680,11 +697,12 @@ const TOPICS: Topic[] = [
           Three numbers fix the two-tone picture: IIP3, N, and G. G only
           slides the plot up and down. IIP3 and N set the SFDR:
         </p>
-        <div className="equation">
-          Pin | IM3 = N &nbsp;=&nbsp; (N + 2 IIP3) / 3
-          <br />
-          SFDR3 &nbsp;=&nbsp; Pin|IM3=N − N &nbsp;=&nbsp; (2/3)(IIP3 − N)
-        </div>
+        <Equation
+          tex={String.raw`\begin{aligned}
+            \left. P_{\mathrm{in}} \right|_{\mathrm{IM3} = N} &= \frac{N + 2\,\mathrm{IIP3}}{3} \\
+            \mathrm{SFDR}_3 &= \left. P_{\mathrm{in}} \right|_{\mathrm{IM3} = N} - N = \tfrac{2}{3}\,(\mathrm{IIP3} - N)
+          \end{aligned}`}
+        />
         <p>
           Improving IIP3 6 dB (a better mixer, or less gain in front of a
           weak stage) buys 4 dB of SFDR. Narrowing B by 4× (6 dB less noise)
