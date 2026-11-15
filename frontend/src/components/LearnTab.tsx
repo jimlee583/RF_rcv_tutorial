@@ -446,6 +446,74 @@ const TOPICS: Topic[] = [
     ),
   },
   {
+    id: 'iip3-cascade',
+    title: 'IIP3',
+    content: (
+      <>
+        <p>
+          Cascaded IIP3 is the input-referred intercept of the whole chain.
+          Powers are in milliwatts and gains are linear power ratios,
+          G = 10^(G_dB/10) and IIP3_mW = 10^(IIP3_dBm/10). Each stage’s
+          intercept is divided by the gain in front of it, and those
+          reciprocals are summed. G_prev of the first stage is 1. A stage
+          with no IIP3 — a filter, an attenuator, or an amplifier left blank —
+          is treated as ideally linear and adds nothing to the sum. Its gain
+          still sits in G_prev of every stage after it. When a part quotes
+          OIP3 and leaves IIP3 blank, the stage intercept is OIP3 − G.
+        </p>
+        <div className="equation">
+          1 / IIP3_mW = Σ (G_prev,i / IIP3_i,mW)
+          <br />
+          IIP3 (dBm) = 10 log10(IIP3_mW)
+          <br />
+          G_prev,1 = 1 &nbsp;&nbsp; G_prev,i = G1 · G2 · … · G_(i−1)
+        </div>
+        <p>
+          The lab default chain is the worked case. The two filters have no
+          IIP3. The LNA quotes OIP3 = 30 dBm at 20 dB of gain, so its IIP3
+          is 10 dBm (10 mW). The mixer quotes IIP3 = 15 dBm (31.62 mW). The
+          IF amplifier quotes OIP3 = 35 dBm at 30 dB of gain, so its IIP3 is
+          5 dBm (3.162 mW). Linear gains along the chain are 0.7943, 100,
+          0.1995, 0.6310, and 1000.
+        </p>
+        <div className="equation">
+          LNA: G_prev = 0.7943 &nbsp;&nbsp; term = 0.7943 / 10 = 0.0794
+          <br />
+          Mixer: G_prev = 0.7943 × 100 = 79.43 &nbsp;&nbsp; term = 79.43 / 31.62 = 2.512
+          <br />
+          IF amp: G_prev = 79.43 × 0.1995 × 0.6310 = 10.00
+          <br />
+          &nbsp;&nbsp;&nbsp;term = 10.00 / 3.162 = 3.162
+          <br />
+          1 / IIP3_mW = 0.0794 + 2.512 + 3.162 = 5.753
+          <br />
+          IIP3 = 10 log10(1 / 5.753) = −7.60 dBm
+        </div>
+        <p>
+          The ΣIIP3 column is this same sum stopped at the current stage.
+          After the LNA the only term is 0.0794, so ΣIIP3 is +11.0 dBm: the
+          LNA’s own +10 dBm, raised 1 dB by the preselect loss in front of
+          it. Adding the mixer brings the sum to 2.591 and ΣIIP3 to −4.13 dBm.
+          The IF filter adds no term, so ΣIIP3 stays −4.13 dBm through that
+          stage. The IF amplifier then takes the cascade to −7.60 dBm.
+        </p>
+        <p>
+          Total gain is −1 + 20 − 7 − 2 + 30 = 40 dB, so the output intercept
+          of the chain is
+        </p>
+        <div className="equation">OIP3 = IIP3 + G = −7.60 + 40 = 32.40 dBm</div>
+        <p>
+          Gain in front of a stage multiplies that stage’s term and lowers
+          the cascade IIP3. The IF amplifier’s own intercept is 5 dBm, and
+          10 dB of gain sits in front of it, so the intercept referred to
+          the antenna is −5 dBm. That term is the largest of the three, and
+          it sets the receiver. The LNA’s term is about 1% of the sum,
+          because the only thing in front of it is 1 dB of filter loss.
+        </p>
+      </>
+    ),
+  },
+  {
     id: 'nf-sens',
     title: 'Noise figure and receiver sensitivity',
     content: (
