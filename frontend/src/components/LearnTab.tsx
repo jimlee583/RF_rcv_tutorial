@@ -20,14 +20,34 @@ const TOPICS: Topic[] = [
         <p>
           A linear two-port produces an output that is a scaled, delayed copy of
           its input. Real RF devices — transistors, diodes, saturated magnetics —
-          have a transfer curve that bends. For a memoryless weakly nonlinear
-          device the output can be written as a power series
+          have a transfer curve that bends. Call that curve f. A memoryless
+          device has an output voltage that depends only on the input voltage
+          at the same instant:
+        </p>
+        <Equation
+          tex={String.raw`v_{\mathrm{out}}(t) = f\bigl(v_{\mathrm{in}}(t)\bigr)`}
+        />
+        <p>
+          v_in and v_out are the RF swings measured from the DC bias, so f is
+          expanded about the bias point and the constant term is the bias
+          itself. A small swing stays on the straight part of the curve. A
+          larger swing reaches the bend, where the transistor’s
+          transconductance changes or the stage begins to compress. Any smooth
+          curve has a Taylor series about that point:
+        </p>
+        <Equation
+          tex={String.raw`v_{\mathrm{out}} = f'(0)\,v_{\mathrm{in}} + \frac{1}{2}f''(0)\,v_{\mathrm{in}}^{2} + \frac{1}{6}f'''(0)\,v_{\mathrm{in}}^{3} + \cdots`}
+        />
+        <p>
+          Folding each factorial into its coefficient gives the power series
+          used for a weakly nonlinear device:
         </p>
         <Equation
           tex={String.raw`v_{\mathrm{out}} = a_1 v_{\mathrm{in}} + a_2 v_{\mathrm{in}}^{2} + a_3 v_{\mathrm{in}}^{3} + \cdots`}
         />
         <p>
-          The linear term a1 is the small-signal voltage gain. The even-order
+          The linear term a1 = f'(0) is the small-signal voltage gain.
+          a2 = f''(0)/2 and a3 = f'''(0)/6 are the curvature. The even-order
           terms (a2, a4, …) generate DC offsets and sum/difference products. The
           odd-order terms (a3, a5, …) generate gain compression and
           intermodulation that lands close to the original tones.
