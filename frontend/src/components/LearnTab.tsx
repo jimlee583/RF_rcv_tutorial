@@ -1,4 +1,4 @@
-import { useState, type ReactNode } from 'react';
+import { useEffect, useState, type ReactNode } from 'react';
 
 import { PassiveDiodeMixerFigures } from './DiodeMixerFigure';
 import { Equation } from './Equation';
@@ -827,8 +827,29 @@ const TOPICS: Topic[] = [
   },
 ];
 
-export function LearnTab() {
+interface LearnTabProps {
+  /**
+   * Topic id requested by another tab (e.g. the Test tab's "Review in Learn").
+   * When set, this tab switches to that topic and then clears the request.
+   */
+  requestedTopicId?: string | null;
+  onConsumeRequestedTopic?: () => void;
+}
+
+export function LearnTab({
+  requestedTopicId,
+  onConsumeRequestedTopic,
+}: LearnTabProps = {}) {
   const [id, setId] = useState(TOPICS[0].id);
+
+  useEffect(() => {
+    if (!requestedTopicId) return;
+    if (TOPICS.some((t) => t.id === requestedTopicId)) {
+      setId(requestedTopicId);
+    }
+    onConsumeRequestedTopic?.();
+  }, [requestedTopicId, onConsumeRequestedTopic]);
+
   const topic = TOPICS.find((t) => t.id === id) ?? TOPICS[0];
 
   return (

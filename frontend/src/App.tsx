@@ -5,17 +5,20 @@ import { Ip3Tab } from './components/Ip3Tab';
 import { LearnTab } from './components/LearnTab';
 import { SpectrumTab } from './components/SpectrumTab';
 import { SummaryStrip } from './components/SummaryStrip';
+import { TestTab, useTestStore } from './components/TestTab';
 import { useIp3Store } from './state/ip3Store';
 import { useReceiverStore } from './state/receiverStore';
 import { useSpectrumStore } from './state/spectrumStore';
+import type { LearnTopicId } from './testQuestions';
 
-type TabId = 'cascade' | 'spectrum' | 'ip3' | 'learn';
+type TabId = 'cascade' | 'spectrum' | 'ip3' | 'learn' | 'test';
 
 const TABS: { id: TabId; label: string }[] = [
   { id: 'cascade', label: 'Receiver cascade' },
   { id: 'spectrum', label: 'Spectrum analyzer' },
   { id: 'ip3', label: 'IP3 & SFDR' },
   { id: 'learn', label: 'Learn' },
+  { id: 'test', label: 'Test' },
 ];
 
 export default function App() {
@@ -23,7 +26,12 @@ export default function App() {
   // Lifted above the tabs so the two-tone / IP3 setup survives tab switches.
   const spectrum = useSpectrumStore(store.state.config, store.state.result);
   const ip3 = useIp3Store(store.state.config, store.state.result);
+  const test = useTestStore();
   const [tab, setTab] = useState<TabId>('cascade');
+  // Set by the Test tab when the user clicks "Review in Learn" so the Learn
+  // tab opens on the right article.
+  const [requestedLearnTopic, setRequestedLearnTopic] =
+    useState<LearnTopicId | null>(null);
 
   return (
     <div className="app">
@@ -66,7 +74,21 @@ export default function App() {
         {tab === 'cascade' && <CascadeTab store={store} />}
         {tab === 'spectrum' && <SpectrumTab store={store} spectrum={spectrum} />}
         {tab === 'ip3' && <Ip3Tab store={store} ip3={ip3} />}
-        {tab === 'learn' && <LearnTab />}
+        {tab === 'learn' && (
+          <LearnTab
+            requestedTopicId={requestedLearnTopic}
+            onConsumeRequestedTopic={() => setRequestedLearnTopic(null)}
+          />
+        )}
+        {tab === 'test' && (
+          <TestTab
+            store={test}
+            onReviewInLearn={(topicId) => {
+              setRequestedLearnTopic(topicId);
+              setTab('learn');
+            }}
+          />
+        )}
       </main>
     </div>
   );
