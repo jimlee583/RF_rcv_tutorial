@@ -686,16 +686,71 @@ const TOPICS: Topic[] = [
         <p>
           Third-order SFDR is the input-power range over which a two-tone
           signal stays above the noise floor while its IM3 products stay
-          below it. Geometrically it is the vertical green span on the IP3
-          plot, or the horizontal span from N to the Pin where IM3 crosses N.
+          below it. The lower edge is the noise floor N: a tone at N is
+          already at the floor. The upper edge is the largest equal-tone
+          input at which each IM3 product is still only as large as N. SFDR
+          is the span between those two powers. On the IP3 plot that span is
+          the vertical green bar, and also the horizontal distance from N to
+          the Pin where the IM3 line crosses N.
+        </p>
+        <p>
+          Start from the equal-tone IM3 law derived above. Referred to the
+          input, each third-order product is
         </p>
         <Equation
-          tex={String.raw`\mathrm{SFDR}_3 = \tfrac{2}{3}\,(\mathrm{IIP3} - N)`}
+          tex={String.raw`P_{\mathrm{IM3}} = 3\,P_{\mathrm{in}} - 2\,\mathrm{IIP3}`}
         />
         <p>
-          The spec’s check case: IIP3 = 0 dBm, N = −120 dBm → SFDR = 80 dB.
-          Two equal tones at −40 dBm sit exactly at that upper edge — each
-          IM3 product is −120 dBm, on the noise floor. The “Spec example”
+          The upper edge is the input power that puts this product on the
+          noise floor. Set the IM3 power equal to N and solve for Pin:
+        </p>
+        <Equation
+          tex={String.raw`\begin{aligned}
+            N &= 3\,P_{\mathrm{in}} - 2\,\mathrm{IIP3} \\
+            3\,P_{\mathrm{in}} &= N + 2\,\mathrm{IIP3} \\
+            \left. P_{\mathrm{in}} \right|_{\mathrm{IM3} = N} &= \frac{N + 2\,\mathrm{IIP3}}{3}
+          \end{aligned}`}
+        />
+        <p>
+          SFDR is that input power minus the noise floor. Every equal-tone
+          level between N and this Pin keeps the fundamental above the floor
+          and the IM3 products at or below it:
+        </p>
+        <Equation
+          tex={String.raw`\mathrm{SFDR}_3 = \left. P_{\mathrm{in}} \right|_{\mathrm{IM3} = N} - N = \frac{N + 2\,\mathrm{IIP3}}{3} - N`}
+        />
+        <p>
+          Write N as 3N/3 so both terms share a denominator. The noise terms
+          are then N − 3N = −2N, and the intercept term keeps its factor of 2:
+        </p>
+        <Equation
+          tex={String.raw`\begin{aligned}
+            \mathrm{SFDR}_3 &= \frac{N + 2\,\mathrm{IIP3}}{3} - \frac{3N}{3} \\
+            &= \frac{N + 2\,\mathrm{IIP3} - 3N}{3} \\
+            &= \frac{2\,\mathrm{IIP3} - 2N}{3} \\
+            &= \frac{2}{3}\,\bigl(\mathrm{IIP3} - N\bigr)
+          \end{aligned}`}
+        />
+        <p>
+          The same difference is the vertical green span. At the upper-edge
+          Pin the fundamental output is Pin + G and the output noise floor is
+          N + G, so the gain drops out:
+        </p>
+        <Equation
+          tex={String.raw`\begin{aligned}
+            P_{\mathrm{fund,out}} - N_{\mathrm{out}}
+              &= \bigl(P_{\mathrm{in}} + G\bigr) - \bigl(N + G\bigr) \\
+              &= P_{\mathrm{in}} - N \\
+              &= \mathrm{SFDR}_3
+          \end{aligned}`}
+        />
+        <p>
+          The spec’s check case: IIP3 = 0 dBm and N = −120 dBm. The upper
+          edge is (−120 + 2×0) / 3 = −40 dBm, and
+          SFDR = −40 − (−120) = 80 dB, which is the same as
+          (2/3) × (0 − (−120)) = 80 dB. Two equal tones at −40 dBm sit
+          exactly on that edge: each IM3 product is
+          3×(−40) − 2×(0) = −120 dBm, on the noise floor. The “Spec example”
           button on the IP3 tab loads this picture (B ≈ 251 kHz, NF = 0 dB,
           T = 290 K).
         </p>
