@@ -356,3 +356,136 @@ class Ip3CurveResponse(BaseModel):
     valid_region_max_dbm: float
     valid_region_source: Literal["ip1db", "iip3_minus_10"]
     gain_db: float
+
+
+# ---------------------------------------------------------------------------
+# Jammer (Phase 4)
+# ---------------------------------------------------------------------------
+
+
+class JammerNoiseSource(BaseModel):
+    """Flat-top (rectangular) noise jammer at the antenna."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    p_dbm: float = Field(description="Total jammer power at the antenna (dBm).")
+    f_center_hz: float = Field(gt=0, description="Center frequency of the jammer band (Hz).")
+    bandwidth_hz: float = Field(gt=0, description="Jammer bandwidth (Hz).")
+
+
+class JammerCwTone(BaseModel):
+    """One CW tone (jammer or desired-signal helper)."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    f_hz: float = Field(gt=0)
+    p_dbm: float
+
+
+class JammerRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    # Desired signal
+    desired_f_hz: float = Field(gt=0, description="Desired-signal center frequency (Hz).")
+    desired_p_dbm: float = Field(description="Desired-signal input power at the antenna (dBm).")
+    required_snr_db: float = Field(
+        default=10.0, description="Demodulator SNR requirement (dB)."
+    )
+
+    # Cascaded receiver quantities (mirror the IP3 tab: linked or edited).
+    iip3_dbm: float = Field(description="Cascaded input-referred IIP3 (dBm).")
+    nf_db: float = Field(default=0.0, description="Cascaded noise figure (dB).")
+    bandwidth_hz: float = Field(gt=0, default=1_000_000.0, description="Receiver noise bandwidth (Hz).")
+    temperature_k: float = Field(gt=0, default=290.0)
+    input_p1db_dbm: float | None = Field(
+        default=None,
+        description=(
+            "Cascaded input P1dB estimate (dBm).  When omitted compression "
+            "and AGC are skipped."
+        ),
+    )
+    agc_backoff_db: float = Field(
+        default=3.0,
+        ge=0.0,
+        description="Target headroom between the front-end power and input P1dB.",
+    )
+
+    # Preselect (brick-wall; first filter in the chain).
+    preselect_passband_min_hz: float | None = None
+    preselect_passband_max_hz: float | None = None
+    preselect_stopband_rejection_db: float | None = Field(default=None, ge=0.0)
+    preselect_label: str = Field(
+        default="RF preselect",
+        description="Name of the preselect filter (for the readout only).",
+    )
+
+    # Jammers (one noise jammer, up to two CW tones).
+    noise: JammerNoiseSource | None = None
+    cw_tones: list[JammerCwTone] | None = Field(default=None, max_length=2)
+
+
+class JammerIm3Product(BaseModel):
+    frequency_hz: float
+    power_dbm: float
+    label: str
+    valid: bool = Field(
+        default=True,
+        description=(
+            "False when the small-signal cubic IM3 law is being extrapolated "
+            "past input P1dB; the number is a sketch, not a prediction."
+        ),
+    )
+
+
+class JammerScenario(BaseModel):
+    """Numbers for one AGC column (either 'off' with pad=0 or 'on')."""
+
+    label: str
+    agc_on: bool
+    pad_db: float
+    nf_db: float
+    iip3_dbm: float
+    input_p1db_dbm: float | None
+    thermal_floor_dbm: float
+    jammer_in_channel_dbm: float = Field(
+        description="Total jammer power inside the receiver bandwidth (dBm).  -inf if none."
+    )
+    effective_floor_dbm: float = Field(
+        description="Thermal floor power-summed with the in-channel jammer power (dBm)."
+    )
+    desired_power_dbm: float
+    snr_db: float
+    snr_margin_db: float = Field(
+        description="SNR minus required_snr_db (positive = link closes)."
+    )
+    front_end_power_dbm: float = Field(
+        description=(
+            "Total jammer power at the first compressing stage, after preselect "
+            "and pad.  -inf when there is no jammer."
+        )
+    )
+    p1db_headroom_db: float | None = Field(
+        description="input_p1db_dbm - front_end_power_dbm; None if no P1dB."
+    )
+    compressing: bool
+    gain_reduction_db: float = Field(
+        description="Labelled compression sketch: 0 below P1dB, 1 at P1dB, dB-for-dB above."
+    )
+    cw_tones: list[JammerCwTone]
+    im3_products: list[JammerIm3Product]
+    im3_valid: bool
+
+
+class JammerResponse(BaseModel):
+    scenario_off: JammerScenario
+    scenario_on: JammerScenario | None = Field(
+        default=None,
+        description="AGC-on column; None when no input P1dB is available.",
+    )
+    thermal_floor_dbm: float = Field(
+        description="kTB + NF at the supplied bandwidth/NF, without any pad (dBm)."
+    )
+    preselect_attenuation_db_noise: float = Field(
+        description="Rejection applied to the noise jammer, 0 when in passband or when no filter is set."
+    )
+    warnings: list[Warning]

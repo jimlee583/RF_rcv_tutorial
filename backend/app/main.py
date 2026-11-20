@@ -6,7 +6,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app import __version__
-from app.routers import cascade, config, ip3, spectrum
+from app.routers import cascade, config, ip3, jammer, spectrum
 
 app = FastAPI(
     title="RF Receiver Lab",
@@ -32,6 +32,7 @@ app.include_router(cascade.router)
 app.include_router(config.router)
 app.include_router(spectrum.router)
 app.include_router(ip3.router)
+app.include_router(jammer.router)
 
 
 @app.get("/api/health")

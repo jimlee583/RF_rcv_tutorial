@@ -15,6 +15,7 @@ export type LearnTopicId =
   | 'sfdr'
   | 'ip3-n-sfdr'
   | 'p1db'
+  | 'jammers'
   | 'limits';
 
 export interface NumericQuestion {

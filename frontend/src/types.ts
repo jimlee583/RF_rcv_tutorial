@@ -222,3 +222,75 @@ export interface Ip3CurveRequest {
   pin_max_dbm: number | null;
   num_points: number;
 }
+
+// ---------------------------------------------------------------------------
+// Jammer
+// ---------------------------------------------------------------------------
+
+export interface JammerNoiseSource {
+  p_dbm: number;
+  f_center_hz: number;
+  bandwidth_hz: number;
+}
+
+export interface JammerCwTone {
+  f_hz: number;
+  p_dbm: number;
+}
+
+export interface JammerRequest {
+  desired_f_hz: number;
+  desired_p_dbm: number;
+  required_snr_db: number;
+  iip3_dbm: number;
+  nf_db: number;
+  bandwidth_hz: number;
+  temperature_k: number;
+  input_p1db_dbm: number | null;
+  agc_backoff_db: number;
+  preselect_passband_min_hz: number | null;
+  preselect_passband_max_hz: number | null;
+  preselect_stopband_rejection_db: number | null;
+  preselect_label: string;
+  noise: JammerNoiseSource | null;
+  cw_tones: JammerCwTone[] | null;
+}
+
+export interface JammerIm3Product {
+  frequency_hz: number;
+  power_dbm: number;
+  label: string;
+  valid: boolean;
+}
+
+export interface JammerScenario {
+  label: string;
+  agc_on: boolean;
+  pad_db: number;
+  nf_db: number;
+  iip3_dbm: number;
+  input_p1db_dbm: number | null;
+  thermal_floor_dbm: number;
+  /** null when no jammer power lands inside the receiver channel. */
+  jammer_in_channel_dbm: number | null;
+  effective_floor_dbm: number;
+  desired_power_dbm: number;
+  snr_db: number;
+  snr_margin_db: number;
+  /** null when there is no jammer at all. */
+  front_end_power_dbm: number | null;
+  p1db_headroom_db: number | null;
+  compressing: boolean;
+  gain_reduction_db: number;
+  cw_tones: JammerCwTone[];
+  im3_products: JammerIm3Product[];
+  im3_valid: boolean;
+}
+
+export interface JammerResponse {
+  scenario_off: JammerScenario;
+  scenario_on: JammerScenario | null;
+  thermal_floor_dbm: number;
+  preselect_attenuation_db_noise: number;
+  warnings: ApiWarning[];
+}

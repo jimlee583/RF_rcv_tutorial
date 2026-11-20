@@ -827,6 +827,128 @@ const TOPICS: Topic[] = [
     ),
   },
   {
+    id: 'jammers',
+    title: 'Jammers: what breaks, and what filtering can and cannot fix',
+    content: (
+      <>
+        <p>
+          A jammer is an intentional interferer at the antenna. An accidental
+          blocker — a nearby radio, a strong broadcast station — behaves
+          identically; the label is about intent, not physics. The Jammer tab
+          shows what each kind does to the same cascade numbers used
+          elsewhere in this lab: noise floor <em>N</em> = kTB + NF, cascaded
+          IIP3, and the input P1dB estimate.
+        </p>
+        <p>
+          The first thing a jammer runs into is the preselect filter. Inside
+          the passband the jammer arrives at its antenna power (less whatever
+          insertion loss the cascade already includes). Outside the passband
+          it is reduced by the stopband rejection. This lab uses a brick-wall
+          model: one rejection number, applied from the jammer’s center
+          frequency. Real filter skirts attenuate differently at every offset,
+          and a jammer that straddles the edge is not well described by one
+          number. The Learn article is the right place to remember that;
+          the readout uses the single number because the rest of the cascade
+          math uses the same abstraction for the filter.
+        </p>
+
+        <h3>Noise jammer</h3>
+        <p>
+          Model a noise jammer as a flat spectrum of total power <em>P<sub>j</sub></em>
+          over a user-set bandwidth <em>W</em>, centered at some
+          frequency. Two numbers come out of this.
+        </p>
+        <Equation
+          tex={String.raw`\begin{aligned}
+            P_{\mathrm{front}} &= P_j - A_{\mathrm{preselect}}\quad\text{(what the LNA sees)} \\
+            P_{\mathrm{in\text{-}channel}} &= P_j - A_{\mathrm{preselect}} + 10\log_{10}\!\tfrac{\min(W, B)}{W}
+          \end{aligned}`}
+        />
+        <p>
+          The front-end power is what might compress the receiver. The
+          in-channel slice is what the demodulator sees; the overlap of the
+          jammer rectangle with the receiver channel <em>B</em> scales the
+          total power down by the bandwidth ratio. A 10 MHz jammer at the
+          antenna looks 10 dB smaller in a 1 MHz channel than its total
+          suggests, even though P1dB sees the whole 10 MHz.
+        </p>
+        <p>
+          Add that in-channel slice to the thermal floor by power sum:
+        </p>
+        <Equation
+          tex={String.raw`N_{\mathrm{eff}} = 10\log_{10}\!\bigl(10^{N/10} + 10^{P_{\mathrm{in\text{-}channel}}/10}\bigr)`}
+        />
+        <p>
+          When the jammer is well above the thermal floor, the effective
+          floor is basically the jammer slice, and SNR collapses to desired
+          power minus that slice.
+        </p>
+
+        <h3>CW jammer</h3>
+        <p>
+          One CW tone on a frequency offset Δ from the desired signal does
+          nothing to the noise floor on its own: the thermal floor is kTB +
+          NF whether that tone is there or not. The cubic nonlinearity
+          turns two tones into third-order products at 2 f<sub>1</sub> − f<sub>2</sub>
+          and 2 f<sub>2</sub> − f<sub>1</sub>. With a single CW tone and the desired signal,
+          the products sit at −Δ and +2Δ from the channel; a CW jammer
+          outside the channel never overlays its IM3 onto the desired bin.
+          Two CW jammers at the right offsets do, and the lab’s{' '}
+          <em>IM3 on channel</em> preset places them so 2 f<sub>1</sub> − f<sub>2</sub>
+          lands exactly on the desired frequency.
+        </p>
+        <Equation
+          tex={String.raw`P(2f_1 - f_2) = 2 P_1 + P_2 - 2\,\mathrm{IIP3} \qquad P(2f_2 - f_1) = 2 P_2 + P_1 - 2\,\mathrm{IIP3}`}
+        />
+        <p>
+          A product in the channel joins the in-channel power sum the same
+          way a noise slice does. The IM3 math is the same cubic
+          extrapolation the IP3 tab plots; the Jammer tab marks IM3 as
+          invalid when the front-end power crosses P1dB, since the
+          small-signal law no longer applies.
+        </p>
+
+        <h3>Compression and AGC</h3>
+        <p>
+          Below input P1dB the cascade is linear enough that the formulas
+          above work. Above it the gain drops, the small-signal IM3 model
+          breaks, and the receiver desenses — every signal loses gain,
+          including the desired one. The lab draws that region as a sketch
+          rather than a prediction.
+        </p>
+        <p>
+          The usual fix is an input attenuator sized so the front-end power
+          sits at the chosen backoff <em>β</em> under P1dB:
+        </p>
+        <Equation
+          tex={String.raw`A = \max\!\bigl(0,\; P_{\mathrm{front}} - (\mathrm{P1dB} - \beta)\bigr)`}
+        />
+        <p>
+          A dB of pad raises NF by A dB, raises input-referred IIP3 and
+          P1dB by A dB each, and lowers antenna-referred IM3 by 2A dB
+          (output IM3 by 3A dB). It does not change in-channel C/I, because
+          the pad attenuates desired and jammer by the same amount. The pad
+          trades noise figure for linearity; it does not cure a jammer that
+          is already inside the channel.
+        </p>
+
+        <h3>What the architecture has to do</h3>
+        <p>
+          Sensitivity wants gain in front and little NF; jammer tolerance
+          wants selectivity in front and headroom. Those pull in opposite
+          directions. The standard compromise is a low-loss preselect, a
+          modest-gain high-IIP3 LNA, then sharper filtering before the
+          mixer. The same lab cascade covers both: Friis puts the LNA’s NF
+          first, and the cascaded IIP3 is set by whichever stage has the
+          worst input-referred intercept once prior gain is accounted for.
+          A jammer scenario that compresses the LNA is a hint to either
+          raise the stage’s IIP3, move filtering forward, or let AGC pay
+          the NF to stay linear.
+        </p>
+      </>
+    ),
+  },
+  {
     id: 'limits',
     title: 'Engineering limitations of this lab',
     content: (
@@ -871,6 +993,30 @@ const TOPICS: Topic[] = [
             Input-referred and output-referred numbers differ by the
             cascade gain. The RF spectrum plot is input-referred; the IF
             plot is output-referred.
+          </li>
+          <li>
+            The Jammer tab uses a brick-wall preselect: one stopband
+            rejection number, applied from the jammer’s center frequency.
+            Real filter skirts attenuate differently at every offset, and
+            a jammer that straddles the edge is not well described by one
+            number.
+          </li>
+          <li>
+            Noise jammers are modelled as rectangles of flat power density.
+            The in-channel slice is the geometric overlap with the receiver
+            bandwidth. Real jammer spectra, filter skirts, and receiver
+            filter shapes all differ from rectangles.
+          </li>
+          <li>
+            Gain reduction above P1dB in the Jammer tab is a labelled
+            sketch (1 dB at P1dB, dB-for-dB over), not a device model. The
+            small-signal IM3 extrapolation is explicitly marked invalid in
+            that region.
+          </li>
+          <li>
+            AGC is a single input attenuator sized to a backoff target; it
+            represents the trade (NF up, IIP3 up, in-channel C/I unchanged)
+            rather than any specific AGC loop.
           </li>
         </ul>
         <p>

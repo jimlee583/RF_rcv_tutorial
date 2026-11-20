@@ -2,6 +2,8 @@ import type {
   CascadeResponse,
   Ip3CurveRequest,
   Ip3CurveResponse,
+  JammerRequest,
+  JammerResponse,
   ReceiverConfig,
   RfComponent,
   SpectrumRequest,
@@ -52,6 +54,12 @@ export const api = {
 
   ip3Curve: (req: Ip3CurveRequest) =>
     jsonFetch<Ip3CurveResponse>(`${BASE}/ip3-curve`, {
+      method: 'POST',
+      body: JSON.stringify(req),
+    }),
+
+  jammer: (req: JammerRequest) =>
+    jsonFetch<JammerResponse>(`${BASE}/jammer`, {
       method: 'POST',
       body: JSON.stringify(req),
     }),

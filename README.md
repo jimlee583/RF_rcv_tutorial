@@ -39,6 +39,9 @@ npm run dev                     # http://localhost:5173
   harmonics, and illustrative mixer spurs.
 - IP3/SFDR visualization with fundamental (1 dB/dB) and IM3 (3 dB/dB)
   curves, noise floor, and SFDR annotation.
+- Jammer tab: noise and CW jammers vs the preselect, effective in-channel
+  floor, CW IM3 landing in the channel, and the AGC-pad trade (NF up,
+  IIP3 up, in-channel C/I unchanged).
 - Learning panel with explanations of all key concepts.
 - Save / load / export receiver configurations as JSON and CSV.
 
